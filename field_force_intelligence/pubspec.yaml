@@ -1,0 +1,28 @@
+name: field_force_intelligence
+description: "Saksham Edge"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sqlite_crdt: any
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1
+  provider: ^6.1.1
+  path: ^1.8.3
+  flutter_map: any
+  latlong2: any
+  flutter_cache_manager: any
+  image_picker: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
