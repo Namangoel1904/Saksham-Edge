@@ -28,6 +28,8 @@ fun HomeScreen(
     onNavigateToMap: () -> Unit
 ) {
     val retailers by viewModel.retailers.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val loadingMessage by viewModel.loadingMessage.collectAsStateWithLifecycle()
     var showVoiceSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -59,19 +61,32 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        LazyColumn(
-            contentPadding = padding,
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-        ) {
-            items(retailers) { retailer ->
-                RetailerItem(retailer, onClick = { onNavigateToDetail(retailer.id) })
-                Spacer(modifier = Modifier.height(8.dp))
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(loadingMessage, style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        } else {
+            LazyColumn(
+                contentPadding = padding,
+                modifier = Modifier.fillMaxSize().padding(16.dp)
+            ) {
+                items(retailers) { retailer ->
+                    RetailerItem(retailer, onClick = { onNavigateToDetail(retailer.id) })
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
 
         if (showVoiceSheet) {
             VoiceBottomSheet(
-                retailerName = "Kisan Krishi Kendra",
+                retailer = null,
                 onDismiss = { showVoiceSheet = false }
             )
         }
@@ -109,7 +124,16 @@ fun RetailerItem(retailer: RetailerEntity, onClick: () -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(retailer.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 Text("Inventory: ${retailer.inventoryLevel}", style = MaterialTheme.typography.bodyMedium)
-                Text("Last Visited: ${retailer.lastVisited.split("T")[0]}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                if (retailer.nextBestAction.isNotBlank()) {
+                    Text(
+                        text = "💡 ${retailer.nextBestAction}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                } else {
+                    Text("Last Visited: ${retailer.lastVisited.split("T")[0]}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                }
             }
             Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Details", tint = Color.Gray)
         }

@@ -16,9 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 
+import com.example.beingnotified.data.RetailerEntity
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VoiceBottomSheet(retailerName: String, onDismiss: () -> Unit) {
+fun VoiceBottomSheet(retailer: RetailerEntity?, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -30,8 +32,10 @@ fun VoiceBottomSheet(retailerName: String, onDismiss: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("Listening... (Bhashini API Mock)", fontStyle = FontStyle.Italic, color = Color.Gray)
             Spacer(modifier = Modifier.height(24.dp))
+            
+            val name = retailer?.name ?: "General Area"
             Text(
-                text = "\"Why am I visiting $retailerName?\"",
+                text = "\"Why am I visiting $name?\"",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -44,8 +48,15 @@ fun VoiceBottomSheet(retailerName: String, onDismiss: () -> Unit) {
                     .border(1.dp, Color(0xFFBBDEFB), RoundedCornerShape(8.dp))
                     .padding(16.dp)
             ) {
+                val systemText = if (retailer != null) {
+                    val baseAction = retailer.nextBestAction.takeIf { it.isNotBlank() } ?: "Conduct Routine Inventory Check"
+                    "System: $name has a critical priority score of ${retailer.priorityScore}. Their inventory is currently ${retailer.inventoryLevel}. My recommendation is: $baseAction."
+                } else {
+                    "System: No specific retailer selected. I recommend checking the map for high priority areas."
+                }
+                
                 Text(
-                    text = "System: Satellite NDVI shows crop stress in a 5km radius, and store inventory for Voliam Targo is critically low.",
+                    text = systemText,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold
                 )

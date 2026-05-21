@@ -56,19 +56,21 @@ fun RouteMapScreen(
                 mapView.overlays.clear()
                 
                 val pune = GeoPoint(18.5204, 73.8567)
-                val highest = retailers.maxByOrNull { it.priorityScore }
+                val topRetailers = retailers.sortedByDescending { it.priorityScore }.take(15)
                 
-                retailers.forEach { retailer ->
+                topRetailers.forEach { retailer ->
                     val marker = Marker(mapView)
                     marker.position = GeoPoint(retailer.lat, retailer.lng)
                     marker.title = "${retailer.name} (Score: ${retailer.priorityScore})"
                     mapView.overlays.add(marker)
                 }
 
-                if (highest != null) {
+                if (topRetailers.isNotEmpty()) {
                     val line = Polyline(mapView)
                     line.addPoint(pune)
-                    line.addPoint(GeoPoint(highest.lat, highest.lng))
+                    topRetailers.forEach { retailer ->
+                        line.addPoint(GeoPoint(retailer.lat, retailer.lng))
+                    }
                     line.color = android.graphics.Color.BLUE
                     line.width = 5f
                     mapView.overlays.add(line)

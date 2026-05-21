@@ -52,13 +52,7 @@ fun RetailerDetailScreen(
 
     if (retailer == null) return
 
-    val nbaText = if (retailer.inventoryLevel.lowercase() == "low") {
-        "Pitch Syngenta Voliam Targo (Insecticide)"
-    } else if (retailer.priorityScore >= 80) {
-        "Discuss Bulk Discount on Amistar Top"
-    } else {
-        "Conduct Routine Inventory Check"
-    }
+    val nbaText = retailer.nextBestAction.takeIf { it.isNotBlank() } ?: "Conduct Routine Inventory Check"
 
     Scaffold(
         topBar = {
@@ -123,11 +117,21 @@ fun RetailerDetailScreen(
                     
                     AnimatedVisibility(visible = expanded) {
                         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                            LimeFactor("+60% Weight:", "Satellite NDVI shows crop stress in a 5km radius.", Color(0xFF4CAF50))
+                            if (retailer.priorityScore >= 80) {
+                                LimeFactor("+60% Weight:", "Demand Spike / Stock-out Risk detected from POS Sales vs current Inventory.", Color(0xFF4CAF50))
+                            } else {
+                                LimeFactor("+20% Weight:", "Routine area coverage.", Color(0xFF4CAF50))
+                            }
                             Spacer(modifier = Modifier.height(12.dp))
-                            LimeFactor("+30% Weight:", "Store inventory for Voliam Targo is critically low.", Color(0xFFFF9800))
-                            Spacer(modifier = Modifier.height(12.dp))
-                            LimeFactor("+10% Weight:", "Routine visit overdue.", Color(0xFF2196F3))
+                            if (retailer.inventoryLevel.lowercase() == "low") {
+                                LimeFactor("+30% Weight:", "Store inventory is critically low.", Color(0xFFFF9800))
+                            } else {
+                                LimeFactor("+10% Weight:", "Inventory levels are stable.", Color(0xFF2196F3))
+                            }
+                            if (retailer.nextBestAction.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                LimeFactor("+10% Weight:", "Follow up required based on recent visit log.", Color(0xFF2196F3))
+                            }
                         }
                     }
                 }
@@ -154,7 +158,7 @@ fun RetailerDetailScreen(
         }
         
         if (showVoiceSheet) {
-            VoiceBottomSheet(retailerName = retailer.name) { showVoiceSheet = false }
+            VoiceBottomSheet(retailer = retailer) { showVoiceSheet = false }
         }
     }
 }

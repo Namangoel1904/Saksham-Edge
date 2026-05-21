@@ -15,9 +15,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _retailers = MutableStateFlow<List<RetailerEntity>>(emptyList())
     val retailers: StateFlow<List<RetailerEntity>> = _retailers
 
+    val isLoading = MutableStateFlow(true)
+    val loadingMessage = MutableStateFlow("Initializing database...")
+
     fun loadRetailers() {
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            _retailers.value = dao.getAssignedRetailers()
+            isLoading.value = true
+            var list = dao.getAssignedRetailers()
+            if (list.isEmpty()) {
+                loadingMessage.value = "Parsing 35MB offline datasets..."
+                com.example.beingnotified.data.DataInjector.injectData(getApplication(), dao)
+                list = dao.getAssignedRetailers()
+            }
+            _retailers.value = list
+            isLoading.value = false
         }
     }
 
