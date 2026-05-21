@@ -55,7 +55,6 @@ Originally conceptualized in Flutter, this project was fully re-architected into
     *   `ui/screens/`: Jetpack Compose UI Screens (Home, Map, Detail, Voice).
     *   `ui/theme/`: Enterprise color palettes and typography.
 *   `app/src/main/assets/databases/`: The pre-compiled `field_force_db.db` containing aggregated datasets.
-*   `data/`: Raw CSV datasets (Hackathon provided).
 *   `generate_db.py`: Python pre-processor script used to aggregate the raw CSVs into the asset SQLite database.
 
 ---
